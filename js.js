@@ -101,6 +101,7 @@ input.addEventListener('keyup', () => {
           filteredCities = cities.filter(el => {
             return el.startsWith(input.value)
           })
+
         }
         filteredCities.map(el => {
           const div = document.createElement('DIV');
@@ -116,8 +117,12 @@ input.addEventListener('keyup', () => {
           clickHandle(dropdown.firstChild.textContent)
         } else if (dropdown.childNodes.length === 0) {
             dropdown.textContent = 'No results'
+
         } else {
           filterDiv.style.overflowY = 'scroll'
+        }
+        if (!input.value) {
+          dropdown.textContent = '';
         }
       })
     }
