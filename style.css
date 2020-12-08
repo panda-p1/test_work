@@ -58,10 +58,14 @@ body {
 .arrow-left {
     position: absolute;
     left: 0;
+    cursor: pointer
+
 }
 .arrow-right {
     position: absolute;
     right: 0;
+    cursor: pointer
+
 }
 td {
     padding: 5px;

@@ -113,7 +113,6 @@ input.addEventListener('keyup', () => {
 
         })
         if (dropdown.childNodes.length === 1) {
-          console.log(dropdown.childNodes.length)
           clickHandle(dropdown.firstChild.textContent)
         } else if (dropdown.childNodes.length === 0) {
             dropdown.textContent = 'No results'
