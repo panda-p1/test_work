@@ -7,7 +7,7 @@ const dropdown = document.querySelector('.dropdown-menu')
 const filterDiv = document.querySelector('.filter')
 
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November','December']
+const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 const date = new Date();
 let currentMonth = date.getMonth() + 1;
@@ -49,7 +49,7 @@ const createCalendar = (year, month) => {
 
   const date = new Date(year, month)
   nav.innerHTML = `<span class="arrow-left">&larr;</span>
-                    ${months[month -12 * Math.floor(month/12)]} ${date.getFullYear()}
+                    ${months[month - 12 * Math.floor(month / 12)]} ${date.getFullYear()}
                     <span class="arrow-right">&rarr;</span>
                     `
   createTable(table, month, year, date)
@@ -57,14 +57,14 @@ const createCalendar = (year, month) => {
 }
 
 const createTable = (table, month, year, date) => {
-  for(let i = 1; i < 7; i++) {
+  for (let i = 1; i < 7; i++) {
     const newTr = table.insertRow(i);
-    for(let j = 0; j < 7; j++) {
+    for (let j = 0; j < 7; j++) {
       const newTd = newTr.insertCell(j);
-      if (date.getMonth() !== month -12 * Math.floor(month/12)) {
+      if (date.getMonth() !== month - 12 * Math.floor(month / 12)) {
         newTd.style.backgroundColor = '#d9d9d9';
       }
-      if ( i === 1 && j < getDay(date)) {
+      if (i === 1 && j < getDay(date)) {
         newTd.innerHTML = `${daysInMonth(month - 1, year) - (getDay(date) - j) + 1}`;
         newTd.style.backgroundColor = '#d9d9d9';
       } else {
@@ -79,85 +79,93 @@ const createTable = (table, month, year, date) => {
   }
 }
 
-let pokes = 0;
-let flag = 0;
+const cities = [];
+fetch('cities.json').then(response => response.json()).then(data => {
+  data['RECORDS'].forEach(el => {
+    cities.push(el['owm_city_name'])
+  })
+})
+
+const debounce = (fn, ms) => {
+  let timeout;
+
+  return function () {
+    const fnCall = () => {
+      fn.apply(this, arguments)
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(fnCall, ms)
+
+  }
+}
+
 input.addEventListener('keyup', () => {
-  pokes++;
   if (dropdown.hasChildNodes()) {
     dropdown.innerHTML = '';
   }
-  setTimeout(() => {
-    flag++;
-    if(pokes === flag) {
+  (debounce(() =>{
+    let filteredCities = [];
 
-      const cities = [];
-      pokes = flag = 0;
-      fetch('cities.json').then(response => response.json()).then(data => {
-        data['RECORDS'].forEach(el => {
-          cities.push(el['owm_city_name'])
-        })
-        let filteredCities = [];
-        if (input.value !== '') {
-          filteredCities = cities.filter(el => {
-            return el.startsWith(input.value)
-          })
-
-        }
-        filteredCities.map(el => {
-          const div = document.createElement('DIV');
-          div.classList.add('list-item')
-
-          div.addEventListener('click', (event) => clickHandle(event.target.textContent))
-          div.textContent = el;
-
-          dropdown.append(div);
-
-        })
-        if (dropdown.childNodes.length === 1) {
-          clickHandle(dropdown.firstChild.textContent)
-        } else if (dropdown.childNodes.length === 0) {
-            dropdown.textContent = 'No results'
-
-        } else {
-          filterDiv.style.overflowY = 'scroll'
-        }
-        if (!input.value) {
-          dropdown.textContent = '';
-        }
+    if (input.value !== '') {
+      filteredCities = cities.filter(el => {
+        return el.startsWith(input.value)
       })
+
     }
-  }, 1000)
+    filteredCities.map(el => {
+      const div = document.createElement('DIV');
+      div.classList.add('list-item')
+
+      div.addEventListener('click', (event) => clickHandle(event.target.textContent))
+      div.textContent = el;
+
+      dropdown.append(div);
+
+    })
+    if (dropdown.childNodes.length === 1) {
+      clickHandle(dropdown.firstChild.textContent)
+    } else if (dropdown.childNodes.length === 0) {
+      dropdown.textContent = 'No results'
+
+    } else {
+      filterDiv.style.overflowY = 'scroll'
+    }
+    if (!input.value) {
+      dropdown.textContent = '';
+    }
+  }, 1000))()
 
 })
 
+
 const clickHandle = (cityName) => {
-    fetch(`http://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=e9b588aaf98720d18db8a935d5908678`)
-      .then(response => response.json()).then(data => {
-      const divCard = document.createElement('DIV');
-      divCard.classList.add('card');
+  fetch(`http://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=e9b588aaf98720d18db8a935d5908678`)
+    .then(response => response.json()).then(data => {
+    const divCard = document.createElement('DIV');
+    divCard.classList.add('card');
 
-      const spanCity = document.createElement('SPAN');
-      spanCity.classList.add('city');
-      spanCity.textContent = cityName;
+    const spanCity = document.createElement('SPAN');
+    spanCity.classList.add('city');
+    spanCity.textContent = cityName;
 
-      const spanTemp = document.createElement('SPAN');
-      spanTemp.classList.add('temperature');
-      spanTemp.textContent = `temperature:${Math.floor(data.main.temp - 273)}`
+    const spanTemp = document.createElement('SPAN');
+    spanTemp.classList.add('temperature');
+    spanTemp.textContent = `temperature:${Math.floor(data.main.temp - 273)}`
 
-      const spanFeelsLike = document.createElement('SPAN');
-      spanFeelsLike.classList.add('temperature');
-      spanFeelsLike.textContent = `\n feels like: ${Math.floor(data.main.feels_like - 273)}`;
+    const spanFeelsLike = document.createElement('SPAN');
+    spanFeelsLike.classList.add('temperature');
+    spanFeelsLike.textContent = `\n feels like: ${Math.floor(data.main.feels_like - 273)}`;
 
-      const spanSky = document.createElement('SPAN');
-      spanSky.style.fontSize = '17px'
-      spanSky.innerHTML = `<br>${data.weather[0].description}`
+    const spanSky = document.createElement('SPAN');
+    spanSky.style.fontSize = '17px'
+    spanSky.innerHTML = `<br>${data.weather[0].description}`
 
-      divCard.append(spanCity, spanTemp, spanFeelsLike, spanSky);
-      dropdown.innerHTML = '';
-      input.value = '';
-      dropdown.append(divCard)
-      filterDiv.style.overflow = 'visible'
-    })
+    divCard.append(spanCity, spanTemp, spanFeelsLike, spanSky);
+    dropdown.innerHTML = '';
+    input.value = '';
+    dropdown.append(divCard)
+    filterDiv.style.overflow = 'visible'
+  })
 }
 
 createCalendar(2020, 12);
