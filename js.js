@@ -98,42 +98,44 @@ const debounce = (fn, ms) => {
 
   }
 }
+function fnc() {
+  let filteredCities = [];
 
+  if (input.value !== '') {
+    filteredCities = cities.filter(el => {
+      return el.startsWith(input.value)
+    })
+
+  }
+  filteredCities.map(el => {
+    const div = document.createElement('DIV');
+    div.classList.add('list-item')
+
+    div.addEventListener('click', (event) => clickHandle(event.target.textContent))
+    div.textContent = el;
+
+    dropdown.append(div);
+
+  })
+  if (dropdown.childNodes.length === 1) {
+    clickHandle(dropdown.firstChild.textContent)
+  } else if (dropdown.childNodes.length === 0) {
+    dropdown.textContent = 'No results'
+
+  } else {
+    filterDiv.style.overflowY = 'scroll'
+  }
+  if (!input.value) {
+    dropdown.textContent = '';
+  }
+}
+fnc = debounce(fnc, 1000)
 input.addEventListener('keyup', () => {
   if (dropdown.hasChildNodes()) {
     dropdown.innerHTML = '';
   }
-  (debounce(() =>{
-    let filteredCities = [];
 
-    if (input.value !== '') {
-      filteredCities = cities.filter(el => {
-        return el.startsWith(input.value)
-      })
-
-    }
-    filteredCities.map(el => {
-      const div = document.createElement('DIV');
-      div.classList.add('list-item')
-
-      div.addEventListener('click', (event) => clickHandle(event.target.textContent))
-      div.textContent = el;
-
-      dropdown.append(div);
-
-    })
-    if (dropdown.childNodes.length === 1) {
-      clickHandle(dropdown.firstChild.textContent)
-    } else if (dropdown.childNodes.length === 0) {
-      dropdown.textContent = 'No results'
-
-    } else {
-      filterDiv.style.overflowY = 'scroll'
-    }
-    if (!input.value) {
-      dropdown.textContent = '';
-    }
-  }, 1000))()
+  fnc()
 
 })
 
