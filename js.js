@@ -24,36 +24,38 @@ function getDay(date) {
 }
 
 nav.addEventListener('click', (event) => {
-  if (event.target.classList[0] === 'arrow-right') {
+  if (event.target.classList.contains('arrow-right')) {
     calendar.innerHTML = '';
     currentMonth++;
     createCalendar(currentYear, currentMonth);
   }
-  if (event.target.classList[0] === 'arrow-left') {
+  if (event.target.classList.contains('arrow-left')) {
     calendar.innerHTML = '';
     currentMonth--;
     createCalendar(currentYear, currentMonth);
   }
 })
 
-const createCalendar = (year, month) => {
+const createCalendar = (year = date.getFullYear(), month = date.getMonth() + 1) => {
   month--;
   const table = document.createElement('table');
-  table.classList.add('calendar')
+  table.classList.add('calendar');
   const newTr = table.insertRow(0);
   weekdays.forEach((el, idx) => {
     const newTd = newTr.insertCell(idx);
     newTd.innerHTML = el;
-    newTd.classList.add('months')
+    newTd.classList.add('months');
   });
 
-  const date = new Date(year, month)
+  const date = new Date(year, month);
+
+
   nav.innerHTML = `<span class="arrow-left">&larr;</span>
-                    ${months[month - 12 * Math.floor(month / 12)]} ${date.getFullYear()}
+                       ${months[month - 12 * Math.floor(month / 12)]} ${date.getFullYear()}
                     <span class="arrow-right">&rarr;</span>
                     `
-  createTable(table, month, year, date)
-  calendar.append(table)
+  createTable(table, month, year, date);
+  calendar.append(table);
 }
 
 const createTable = (table, month, year, date) => {
@@ -70,7 +72,7 @@ const createTable = (table, month, year, date) => {
       } else {
         newTd.innerHTML = `${date.getDate()}`;
         if (new Date().getDate() === date.getDate() && new Date().getMonth() === date.getMonth() && new Date().getFullYear() === date.getFullYear()) {
-          newTd.style.border = '3px solid red'
+          newTd.style.border = '3px solid red';
         }
         date.setDate(date.getDate() + 1);
 
@@ -82,7 +84,7 @@ const createTable = (table, month, year, date) => {
 const cities = [];
 fetch('cities.json').then(response => response.json()).then(data => {
   data['RECORDS'].forEach(el => {
-    cities.push(el['owm_city_name'])
+    cities.push(el['owm_city_name']);
   })
 })
 
@@ -91,10 +93,10 @@ const debounce = (fn, ms) => {
 
   return function () {
     const fnCall = () => {
-      fn.apply(this, arguments)
+      fn.apply(this, arguments);
     };
     clearTimeout(timeout);
-    timeout = setTimeout(fnCall, ms)
+    timeout = setTimeout(fnCall, ms);
 
   }
 }
@@ -103,13 +105,13 @@ function fnc() {
 
   if (input.value !== '') {
     filteredCities = cities.filter(el => {
-      return el.startsWith(input.value)
+      return el.startsWith(input.value);
     })
 
   }
   filteredCities.map(el => {
     const div = document.createElement('DIV');
-    div.classList.add('list-item')
+    div.classList.add('list-item');
 
     div.addEventListener('click', (event) => clickHandle(event.target.textContent))
     div.textContent = el;
@@ -120,10 +122,10 @@ function fnc() {
   if (dropdown.childNodes.length === 1) {
     clickHandle(dropdown.firstChild.textContent)
   } else if (dropdown.childNodes.length === 0) {
-    dropdown.textContent = 'No results'
+    dropdown.textContent = 'No results';
 
   } else {
-    filterDiv.style.overflowY = 'scroll'
+    filterDiv.style.overflowY = 'scroll';
   }
   if (!input.value) {
     dropdown.textContent = '';
@@ -135,7 +137,7 @@ input.addEventListener('keyup', () => {
     dropdown.innerHTML = '';
   }
 
-  fnc()
+  fnc();
 
 })
 
@@ -170,4 +172,4 @@ const clickHandle = (cityName) => {
   })
 }
 
-createCalendar(2020, 12);
+createCalendar();
